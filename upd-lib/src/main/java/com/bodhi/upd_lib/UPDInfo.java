@@ -1,5 +1,11 @@
 package com.bodhi.upd_lib;
 
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.os.Build;
+
 /**
  * @author : Sun
  * @version : 1.0
@@ -12,7 +18,11 @@ public class UPDInfo {
     private String savePath;
     private UPDListener downloadListener;
     private boolean autoOpen = false;
+    private boolean notificationProgress = false;
     private int status=UPDCore.INFO_STATUS_READY;
+    private NotificationManager notificationManager;
+    private Notification.Builder notificationBuilder;
+    private Context context;
 
 
     public static UPDInfo onCreate(String title, String fileUrl) {
@@ -26,6 +36,26 @@ public class UPDInfo {
     public UPDInfo auto(boolean auto) {
         autoOpen = auto;
         return this;
+    }
+
+    public UPDInfo notificationProgress(Context context,boolean notificationProgress){
+        this.notificationProgress=notificationProgress;
+
+        if (notificationProgress) {
+            initNotificationProgress(context);
+        }
+        return this;
+    }
+
+    private void initNotificationProgress(Context context) {
+        this.context=context;
+        notificationManager = (NotificationManager)context.getSystemService(context.NOTIFICATION_SERVICE);
+
+        notificationBuilder = new Notification.Builder(context)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle(AppUtils.getAppName(context))
+                .setContentText("准备下载");
+
     }
 
     public UPDInfo listener(UPDListener listener) {
@@ -54,6 +84,24 @@ public class UPDInfo {
         if (downloadListener != null) {
             downloadListener.onStart();
         }
+
+        if(context==null){
+            return;
+        }
+        if(notificationManager==null){
+            return;
+        }
+        if(notificationBuilder==null){
+            return;
+        }
+        if(context instanceof Activity){
+            ((Activity) context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notificationManager.notify(1, notificationBuilder.build());
+                }
+            });
+        }
     }
 
     public void onPause() {
@@ -63,9 +111,29 @@ public class UPDInfo {
         }
     }
 
-    public void onProgress(long current, long total) {
+    public void onProgress(final long current, final long total) {
         if (downloadListener != null) {
             downloadListener.onProgress(current, total);
+        }
+
+        if(context==null){
+            return;
+        }
+        if(notificationManager==null){
+            return;
+        }
+        if(notificationBuilder==null){
+            return;
+        }
+        if(context instanceof Activity){
+            ((Activity) context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notificationBuilder.setContentTitle(AppUtils.getAppName(context)+"-正在下载更新包");
+                    notificationBuilder.setContentText((int)(current*100/total)+"%");
+                    notificationManager.notify(1, notificationBuilder.build());
+                }
+            });
         }
     }
 
@@ -76,6 +144,28 @@ public class UPDInfo {
         }
 
         UPDCore.getInstance().downloadComplete();
+
+        if(context==null){
+            return;
+        }
+        if(notificationManager==null){
+            return;
+        }
+        if(notificationBuilder==null){
+            return;
+        }
+        if(context instanceof Activity){
+            ((Activity) context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notificationBuilder.setContentTitle(AppUtils.getAppName(context));
+                    notificationBuilder.setContentText("下载超时，请重新下载");
+                    Notification notification = notificationBuilder.build();
+                    notification.flags=Notification.FLAG_AUTO_CANCEL;
+                    notificationManager.notify(1, notification);
+                }
+            });
+        }
     }
 
     public void onComplete(long total) {
@@ -85,6 +175,27 @@ public class UPDInfo {
         }
 
         UPDCore.getInstance().downloadComplete();
+
+        if(context==null){
+            return;
+        }
+        if(notificationManager==null){
+            return;
+        }
+        if(notificationBuilder==null){
+            return;
+        }
+        if(context instanceof Activity){
+            ((Activity) context).runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    notificationBuilder.setContentTitle(AppUtils.getAppName(context));
+                    notificationBuilder.setContentText("下载完成");
+                    notificationManager.notify(1, notificationBuilder.build());
+                    notificationManager.cancel(1);
+                }
+            });
+        }
     }
 
     public void doAuto() {

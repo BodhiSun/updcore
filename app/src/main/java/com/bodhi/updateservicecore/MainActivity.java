@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickTx(View view) {
-        UPDCore.getInstance().startDownload("testApp", url, true, new UPDListener() {
+        UPDCore.getInstance().startDownload("testApp", url, true,true, new UPDListener() {
             @Override
             public void onStart() {
                 Log.e("test","onStart");

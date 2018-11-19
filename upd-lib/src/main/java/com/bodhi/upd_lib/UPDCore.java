@@ -44,7 +44,7 @@ public class UPDCore {
         appContext = context;
     }
 
-    public void startDownload(String title, String url, boolean auto, UPDListener listener) {
+    public void startDownload(String title, String url, boolean auto,boolean notificationProgress, UPDListener listener) {
         if (currentDownloadInfo != null) {
             int status = currentDownloadInfo.getStatus();
             if (status == INFO_STATUS_DOWNLOADING) {
@@ -53,7 +53,7 @@ public class UPDCore {
             }
         }
 
-        currentDownloadInfo = UPDInfo.onCreate(title, url).auto(auto).listener(listener);
+        currentDownloadInfo = UPDInfo.onCreate(title, url).auto(auto).listener(listener).notificationProgress(appContext,notificationProgress);
         appContext.startService(new Intent(appContext, UPDService.class).putExtra(INTENT_UPD_DOWNLOAD, currentDownloadInfo.getTitle()));
     }
 
