@@ -11,6 +11,7 @@ import com.bodhi.upd_lib.UPDListener;
 
 public class MainActivity extends AppCompatActivity {
     public static String url="http://down.jser123.com/app-debug-v3.0.1_301_2_yyb_sign.apk";
+    public static String urlBk="http://down.jser123.com/bktt__DEFAULT__sign.apk";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickTx(View view) {
-        UPDCore.getInstance().startDownload("testApp", url, true,true, new UPDListener() {
+        UPDCore.getInstance().startDownload("testApp", urlBk, true,true, new UPDListener() {
             @Override
             public void onStart() {
                 Log.e("test","onStart");
